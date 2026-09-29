@@ -1,0 +1,133 @@
+{
+  "info": {
+    "name": "Restful Booker - API Test Suite (Nikhil Partap Singh)",
+    "description": "Manual API test suite for https://restful-booker.herokuapp.com - auth + booking CRUD + negative tests. Executed 29 Sept 2026.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://restful-booker.herokuapp.com" },
+    { "key": "token", "value": "" },
+    { "key": "bookingId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth - Create token (valid)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('token issued', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.json()).to.have.property('token'); });",
+        "pm.collectionVariables.set('token', pm.response.json().token);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/auth",
+        "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"password123\"}" }
+      }
+    },
+    {
+      "name": "Auth - Create token (invalid password)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('bad credentials rejected', function () { pm.expect(pm.response.json().reason).to.eql('Bad credentials'); });"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/auth",
+        "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}" }
+      }
+    },
+    {
+      "name": "Booking - Create",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('booking created', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.json()).to.have.property('bookingid'); });",
+        "pm.collectionVariables.set('bookingId', pm.response.json().bookingid);"
+      ]}}],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/booking",
+        "body": { "mode": "raw", "raw": "{\"firstname\":\"Nikhil\",\"lastname\":\"Singh\",\"totalprice\":1500,\"depositpaid\":true,\"bookingdates\":{\"checkin\":\"2026-10-01\",\"checkout\":\"2026-10-05\"},\"additionalneeds\":\"Breakfast\"}" }
+      }
+    },
+    {
+      "name": "Booking - Get by id",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('booking returned', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.json().firstname).to.eql('Nikhil'); });"
+      ]}}],
+      "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/booking/{{bookingId}}" }
+    },
+    {
+      "name": "Booking - Full update (PUT)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('booking updated', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.json().lastname).to.eql('Partap Singh'); });"
+      ]}}],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "token={{token}}" }],
+        "url": "{{baseUrl}}/booking/{{bookingId}}",
+        "body": { "mode": "raw", "raw": "{\"firstname\":\"Nikhil\",\"lastname\":\"Partap Singh\",\"totalprice\":2000,\"depositpaid\":false,\"bookingdates\":{\"checkin\":\"2026-10-02\",\"checkout\":\"2026-10-06\"},\"additionalneeds\":\"Late checkout\"}" }
+      }
+    },
+    {
+      "name": "Booking - Update without token (403 expected)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('forbidden without token', function () { pm.expect(pm.response.code).to.eql(403); });"
+      ]}}],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/booking/{{bookingId}}",
+        "body": { "mode": "raw", "raw": "{\"firstname\":\"X\"}" }
+      }
+    },
+    {
+      "name": "Booking - Partial update (PATCH)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('price patched', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.json().totalprice).to.eql(2500); });"
+      ]}}],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "token={{token}}" }],
+        "url": "{{baseUrl}}/booking/{{bookingId}}",
+        "body": { "mode": "raw", "raw": "{\"totalprice\":2500}" }
+      }
+    },
+    {
+      "name": "Booking - Search by name",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('filter returns list', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.json()).to.be.an('array'); });"
+      ]}}],
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/booking?firstname=Nikhil&lastname=Partap%20Singh", "host": ["{{baseUrl}}"], "path": ["booking"], "query": [{ "key": "firstname", "value": "Nikhil" }, { "key": "lastname", "value": "Partap%20Singh" }] }
+      }
+    },
+    {
+      "name": "Booking - Delete",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('deleted', function () { pm.expect(pm.response.code).to.eql(201); });"
+      ]}}],
+      "request": { "method": "DELETE", "header": [{ "key": "Cookie", "value": "token={{token}}" }], "url": "{{baseUrl}}/booking/{{bookingId}}" }
+    },
+    {
+      "name": "Booking - Get deleted (404 expected)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 after delete', function () { pm.expect(pm.response.code).to.eql(404); });"
+      ]}}],
+      "request": { "method": "GET", "url": "{{baseUrl}}/booking/{{bookingId}}" }
+    },
+    {
+      "name": "Booking - Get non-existent (404 expected)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('404 for unknown id', function () { pm.expect(pm.response.code).to.eql(404); });"
+      ]}}],
+      "request": { "method": "GET", "url": "{{baseUrl}}/booking/999999999" }
+    },
+    {
+      "name": "Health - Ping",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('API alive', function () { pm.expect(pm.response.code).to.eql(201); });"
+      ]}}],
+      "request": { "method": "GET", "url": "{{baseUrl}}/ping" }
+    }
+  ]
+}
