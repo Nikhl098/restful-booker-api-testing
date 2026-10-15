@@ -1,6 +1,6 @@
 # API Test Cases - Restful Booker
 
-Executed: 29 September 2026 | Tester: Nikhil Partap Singh
+Executed: 29 September 2026 | Tester: Nikhil Pratap Singh
 Base URL: https://restful-booker.herokuapp.com
 
 | ID | Title | Request | Expected result | Actual result | Status |
