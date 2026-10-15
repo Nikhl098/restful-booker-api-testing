@@ -2,7 +2,7 @@
 
 API testing of Restful Booker (https://restful-booker.herokuapp.com), a public practice API for learning API testing. Tests executed with Postman-style HTTP requests covering authentication and full booking CRUD.
 
-**Author:** Nikhil Partap Singh - Manual QA Tester (Fresher)
+**Author:** Nikhil Pratap Singh - Manual QA Tester (Fresher)
 **Date executed:** 29 September 2026
 
 ## Scope
