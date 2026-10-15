@@ -1,6 +1,6 @@
 # Test Results - Restful Booker API
 
-Execution date: 29 September 2026 | Tester: Nikhil Partap Singh
+Execution date: 29 September 2026 | Tester: Nikhil Pratap Singh
 Base URL: https://restful-booker.herokuapp.com
 
 Raw evidence from the actual run (responses shortened where noted).
